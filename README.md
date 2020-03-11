@@ -1,1 +1,1 @@
-Aplicação em react para a listagem de repositórios através da api do github.
+Aplicação em react para a listagem de repositórios através da api do github..
