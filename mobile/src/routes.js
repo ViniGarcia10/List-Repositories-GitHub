@@ -17,7 +17,13 @@ function Routes() {
           headerTitleAlign: 'center',
           headerStyle: {backgroundColor: '#7159c1'},
         }}>
-        <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen
+          name="Main"
+          component={Main}
+          options={{
+            title: 'Usuários',
+          }}
+        />
         <Stack.Screen name="User" component={User} />
       </Stack.Navigator>
     </NavigationContainer>

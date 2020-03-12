@@ -1,12 +1,12 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-console.log('teste');
+import {Container} from './styles';
 
 export default function Main() {
   return (
-    <View>
+    <Container>
       <Text>Main</Text>
-    </View>
+    </Container>
   );
 }
