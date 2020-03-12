@@ -1,5 +1,6 @@
-import React, {Component, Profiler} from 'react';
-import {Keyboard, ToastAndroid} from 'react-native';
+import React, {Component} from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
+import {Keyboard, ToastAndroid, ActivityIndicator} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../services/api';
 
@@ -21,11 +22,31 @@ export default class App extends Component {
   state = {
     newUser: '',
     users: [],
+    loading: false,
   };
 
+  async componentDidMount() {
+    const users = await AsyncStorage.getItem('users');
+
+    if (users) {
+      this.setState({users: JSON.parse(users)});
+    }
+  }
+
+  async componentDidUpdate(_, prevState) {
+    const {users} = this.state;
+
+    if (prevState.users !== users) {
+      AsyncStorage.setItem('users', JSON.stringify(users));
+    }
+  }
+
   handleAddUser = async () => {
+    this.setState({loading: true});
     try {
       const {users, newUser} = this.state;
+
+      if (newUser === '-1') throw this.setState({users: []});
 
       if (newUser === '')
         throw ToastAndroid.show(
@@ -33,6 +54,13 @@ export default class App extends Component {
           ToastAndroid.SHORT,
           ToastAndroid.CENTER,
         );
+
+      // if (newUser === users[1])
+      //   throw ToastAndroid.show(
+      //     `Ops! O usuário ${newUser} já existe!`,
+      //     ToastAndroid.LONG,
+      //     ToastAndroid.CENTER,
+      //   );
 
       const response = await api.get(`/users/${newUser}`);
 
@@ -43,28 +71,32 @@ export default class App extends Component {
         avatar: response.data.avatar_url,
       };
 
-      this.setState({
-        users: [...users, data],
-        newUser: '',
-      });
-
-      Keyboard.dismiss();
+      this.setState({users: [...users, data]});
     } catch {
       const {newUser} = this.state;
 
-      ToastAndroid.show(
-        `Ops! não foi possivel buscar o usuário ${newUser}!`,
-        ToastAndroid.LONG,
-        ToastAndroid.CENTER,
-      );
+      if (newUser === '-1') {
+        ToastAndroid.show(
+          `Lista limpa com sucesso!`,
+          ToastAndroid.LONG,
+          ToastAndroid.CENTER,
+        );
+      } else {
+        ToastAndroid.show(
+          `Ops! não foi possivel encontrar o usuário ${newUser}!`,
+          ToastAndroid.LONG,
+          ToastAndroid.CENTER,
+        );
+      }
+    } finally {
+      this.setState({loading: false, newUser: ''});
 
       Keyboard.dismiss();
-    } finally {
     }
   };
 
   render() {
-    const {users, newUser} = this.state;
+    const {users, newUser, loading} = this.state;
 
     return (
       <Container>
@@ -78,8 +110,12 @@ export default class App extends Component {
             returnKeyType="send"
             onSubmitEditing={this.handleAddUser}
           />
-          <SubmitButton onPress={this.handleAddUser}>
-            <Icon name="add" size={20} color="#fff" />
+          <SubmitButton loading={loading} onPress={this.handleAddUser}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Icon name="add" size={20} color="#fff" />
+            )}
           </SubmitButton>
         </Form>
 
