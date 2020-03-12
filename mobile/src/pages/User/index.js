@@ -1,8 +1,10 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Text} from 'react-native';
 
 // import { Container } from './styles';
 
-export default function User() {
-  return <View />;
+export default function User({route}) {
+  const user = route.params.user;
+
+  return <Text>Usuário: {user.name}</Text>;
 }
