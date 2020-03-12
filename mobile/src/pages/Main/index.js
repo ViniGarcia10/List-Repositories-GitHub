@@ -1,0 +1,12 @@
+import React from 'react';
+import {View, Text} from 'react-native';
+
+console.log('teste');
+
+export default function Main() {
+  return (
+    <View>
+      <Text>Main</Text>
+    </View>
+  );
+}
